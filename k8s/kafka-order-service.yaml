@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-order-service
+  template:
+    metadata:
+      labels:
+        app: kafka-order-service
+    spec:
+      containers:
+        - name: kafka-order-service
+          image: kafka-order-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-order-service
+spec:
+  selector:
+    app: kafka-order-service
+  ports:
+    - port: 8081
+      targetPort: 8081

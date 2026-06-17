@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-producer-ui
+  template:
+    metadata:
+      labels:
+        app: kafka-producer-ui
+    spec:
+      containers:
+        - name: kafka-producer-ui
+          image: kafka-producer-ui:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-producer-ui
+spec:
+  selector:
+    app: kafka-producer-ui
+  ports:
+    - port: 8080
+      targetPort: 8080
