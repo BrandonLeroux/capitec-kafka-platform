@@ -2,6 +2,16 @@
 
 A full event-driven microservices platform built on Apache Kafka, deployed on Kubernetes (Rancher Desktop).
 
+## Platform Compatibility
+
+| Component | macOS | Windows (WSL) |
+|---|---|---|
+| Java services | ✅ | ✅ |
+| Docker / Kubernetes | ✅ Rancher Desktop | ✅ Rancher Desktop |
+| Shell scripts (`runbook.sh`, seed scripts) | ✅ | ✅ via WSL |
+
+**Windows users must run all scripts inside WSL.** Open a WSL terminal and clone the repo there — do not run the scripts from CMD or PowerShell.
+
 ## Architecture
 
 ```
