@@ -49,7 +49,7 @@ for i in $(seq 0 $((COUNT - 1))); do
   DOMAIN=${DOMAINS[$((i % ${#DOMAINS[@]}))]}
   FN_LC=$(echo "$FN" | tr '[:upper:]' '[:lower:]')
   LN_LC=$(echo "$LN" | tr '[:upper:]' '[:lower:]')
-  EMAIL="${FN_LC}.${LN_LC}.${CUST_NUM}@${DOMAIN}"
+  EMAIL="${FN_LC}.${LN_LC}@${DOMAIN}"
   PREFIX=${CELL_PREFIXES[$((i % ${#CELL_PREFIXES[@]}))]}
   CELL_SUFFIX=$(printf "%07d" $((( CUST_NUM * 7 + i * 13) % 9999999 + 1000000)))
   CELL="${PREFIX}${CELL_SUFFIX:0:7}"
