@@ -335,9 +335,27 @@ echo -e "    ${CYAN}bash runbook.sh --skip-seed${NC}         # skip data seeding
 echo -e "    ${CYAN}bash runbook.sh --skip-build --skip-seed${NC}  # just port-forward"
 echo ""
 
-# Auto-open portals on macOS
+# Auto-open portals (macOS, Windows/WSL, Linux)
 if command -v open &>/dev/null; then
+  # macOS
   open http://localhost:8082
   open http://localhost:8081
   log_ok "Portals opened in your browser"
+elif command -v start &>/dev/null; then
+  # Windows Git Bash / CMD
+  start http://localhost:8082
+  start http://localhost:8081
+  log_ok "Portals opened in your browser"
+elif grep -qi microsoft /proc/version 2>/dev/null; then
+  # WSL — use Windows explorer.exe to open browser
+  explorer.exe http://localhost:8082 2>/dev/null || true
+  explorer.exe http://localhost:8081 2>/dev/null || true
+  log_ok "Portals opened in your browser"
+elif command -v xdg-open &>/dev/null; then
+  # Linux desktop
+  xdg-open http://localhost:8082 &>/dev/null &
+  xdg-open http://localhost:8081 &>/dev/null &
+  log_ok "Portals opened in your browser"
+else
+  log_warn "Could not auto-open browser — open the URLs above manually"
 fi
