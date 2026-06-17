@@ -151,6 +151,27 @@ public class PortalApiHandler {
 
         double amount = Double.parseDouble(amountS.replace(",", "."));
         int    qty    = (qtyS != null && !qtyS.isBlank()) ? Integer.parseInt(qtyS.trim()) : 1;
+
+        // Server-side stock check — prevent ordering more than available
+        String stockJson = httpGet(PortalApp.orderServiceUrl + "/api/inventory/stock");
+        if (stockJson != null) {
+            String qtyAvailStr = PortalApp.getJsonNum(
+                stockJson.contains("\"" + product + "\"") ? stockJson.substring(stockJson.indexOf("\"" + product + "\"")) : "",
+                "qty");
+            if (qtyAvailStr != null && !qtyAvailStr.isBlank()) {
+                int available = Integer.parseInt(qtyAvailStr.trim());
+                if (qty > available) {
+                    PortalApp.respond(out, 400, "application/json",
+                        String.format("{\"error\":\"Only %d unit%s in stock\"}", available, available == 1 ? "" : "s"));
+                    return;
+                }
+                if (available == 0) {
+                    PortalApp.respond(out, 400, "application/json", "{\"error\":\"Item is out of stock\"}");
+                    return;
+                }
+            }
+        }
+
         String orderID = "ORD-" + s.customerNumber + "-" + System.currentTimeMillis();
 
         String payload = String.format(

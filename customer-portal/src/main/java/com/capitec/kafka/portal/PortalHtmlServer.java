@@ -643,10 +643,24 @@ public class PortalHtmlServer {
     document.getElementById('apply-sku').textContent   = variant.sku;
     document.getElementById('apply-price').textContent = 'R ' + variant.price.toLocaleString('en-ZA');
     document.getElementById('apply-desc').textContent  = variant.desc;
+    const inCart    = cart.find(i => i.variant.id === variant.id)?.qty || 0;
+    const available = (stockMap[variant.id]?.qty ?? Infinity) - inCart;
+    const maxQty    = Math.max(0, available);
+
     document.getElementById('apply-qty').value = '1';
     document.getElementById('apply-qty-select').value = '1';
     document.getElementById('apply-qty-custom').style.display = 'none';
     document.getElementById('apply-qty-custom').value = '';
+    document.getElementById('apply-qty-custom').max = maxQty;
+
+    // Show stock availability below the price
+    const stockInfo = maxQty === 0
+      ? '<span style="color:var(--red);font-size:0.75rem">Already at max stock in cart</span>'
+      : isFinite(available)
+        ? `<span style="color:var(--text2);font-size:0.75rem">${available} available</span>`
+        : '';
+    document.getElementById('apply-sku').innerHTML = variant.sku + (stockInfo ? '&nbsp;&nbsp;' + stockInfo : '');
+
     updateTotal();
     clearAlert('apply-alert');
     document.getElementById('apply-modal').classList.add('open');
@@ -733,7 +747,18 @@ public class PortalHtmlServer {
     const qty = parseInt(document.getElementById('apply-qty').value) || 1;
     if (!currentProduct) return;
 
-    // Check if already in cart — increment qty if so
+    const available = stockMap[currentProduct.id]?.qty ?? Infinity;
+    const inCart    = cart.find(i => i.variant.id === currentProduct.id)?.qty || 0;
+    const canAdd    = available - inCart;
+
+    if (qty > canAdd) {
+      const msg = canAdd <= 0
+        ? 'No stock available — already in your cart.'
+        : `Only ${canAdd} unit${canAdd === 1 ? '' : 's'} available (${inCart} already in cart).`;
+      setAlert('apply-alert', 'error', msg);
+      return;
+    }
+
     const existing = cart.find(i => i.variant.id === currentProduct.id);
     if (existing) {
       existing.qty += qty;
@@ -796,7 +821,8 @@ public class PortalHtmlServer {
   }
 
   function changeQty(idx, delta) {
-    cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+    const maxStock = stockMap[cart[idx].variant.id]?.qty ?? Infinity;
+    cart[idx].qty = Math.min(maxStock, Math.max(1, cart[idx].qty + delta));
     updateCartBadge();
     renderCart();
   }
