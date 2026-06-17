@@ -210,9 +210,9 @@ public class PortalHtmlServer {
   <div class="auth-wrap">
     <div class="auth-card">
       <h2>Welcome back</h2>
-      <p class="sub">Sign in with your cell number, ID number, or customer number</p>
+      <p class="sub">Sign in with your cell number, email address, or customer number</p>
       <div id="login-alert" class="alert"></div>
-      <div class="field"><label>Cell / ID Number / Customer Number</label><input id="login-cell" type="text" placeholder="e.g. 0821234567 or 8001010000000 or 1000000000" onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()"/></div>
+      <div class="field"><label>Cell / Email / Customer Number</label><input id="login-cell" type="text" placeholder="e.g. 0821234567 or jane@email.com or 1000000000" onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()"/></div>
       <div class="field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="btn-primary" onclick="doLogin()">Sign In</button>
       <p class="form-footer">No account? <button class="link-btn" onclick="goToSignup()">Register here</button></p>

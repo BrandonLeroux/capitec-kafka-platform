@@ -84,9 +84,9 @@ public class CustomerRepository {
         }
     }
 
-    // Matches on cell, ID number, or customer number — used for flexible login
+    // Matches on cell, email, or customer number — used for flexible login
     public Customer findByIdentifier(String value) throws SQLException {
-        String sql = "SELECT * FROM customers WHERE cell = ? OR id_number = ? OR CAST(customer_number AS TEXT) = ?";
+        String sql = "SELECT * FROM customers WHERE cell = ? OR email = ? OR CAST(customer_number AS TEXT) = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, value);
             ps.setString(2, value);
