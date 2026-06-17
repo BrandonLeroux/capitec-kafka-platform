@@ -107,6 +107,14 @@ public class OrderUiServer {
             if (c == null) { respond(out, 404, "application/json", "{\"error\":\"not found\"}"); return; }
             respond(out, 200, "application/json", customerToJson(c));
 
+        // Flexible login lookup — matches cell, ID number, or customer number
+        } else if ("GET".equals(method) && "/api/customer/by-identifier".equals(path)) {
+            String id = param(query, "q");
+            if (id == null) { respond(out, 400, "application/json", "{\"error\":\"q required\"}"); return; }
+            Customer c = customerRepo.findByIdentifier(id.trim());
+            if (c == null) { respond(out, 404, "application/json", "{\"error\":\"not found\"}"); return; }
+            respond(out, 200, "application/json", customerToJson(c));
+
         // Customer by ID or max-number
         } else if ("GET".equals(method) && path.startsWith("/api/customer/")) {
             String id = path.substring("/api/customer/".length());

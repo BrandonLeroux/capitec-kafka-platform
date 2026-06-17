@@ -50,7 +50,7 @@ public class PortalApiHandler {
             PortalApp.respond(out, 400, "application/json", "{\"error\":\"cell and password required\"}"); return;
         }
 
-        String customerJson = httpGet(PortalApp.orderServiceUrl + "/api/customer/by-cell?cell=" + cell);
+        String customerJson = httpGet(PortalApp.orderServiceUrl + "/api/customer/by-identifier?q=" + cell);
         if (customerJson == null) {
             PortalApp.respond(out, 401, "application/json", "{\"error\":\"Customer not found\"}"); return;
         }
