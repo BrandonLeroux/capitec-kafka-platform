@@ -283,26 +283,63 @@ fi
 # =============================================================================
 # Summary
 # =============================================================================
+
+# Pull a real test user from the DB so we always show live credentials
+TEST_CELL=""
+TEST_NAME=""
+TEST_CNUM=""
+if curl -s "http://localhost:8081/api/customers?size=1" &>/dev/null; then
+  TEST_JSON=$(curl -s "http://localhost:8081/api/customers?size=1" 2>/dev/null)
+  TEST_CELL=$(echo "$TEST_JSON" | python3 -c "import sys,json;d=json.load(sys.stdin);c=d.get('customers',[]); print(c[0]['cell'] if c else '')" 2>/dev/null || echo "")
+  TEST_NAME=$(echo "$TEST_JSON" | python3 -c "import sys,json;d=json.load(sys.stdin);c=d.get('customers',[]); print(c[0]['firstName']+' '+c[0]['lastName'] if c else '')" 2>/dev/null || echo "")
+  TEST_CNUM=$(echo "$TEST_JSON" | python3 -c "import sys,json;d=json.load(sys.stdin);c=d.get('customers',[]); print(c[0]['customerNumber'] if c else '')" 2>/dev/null || echo "")
+fi
+# Fall back to known seed values if API unreachable
+TEST_CELL="${TEST_CELL:-0601000700}"
+TEST_NAME="${TEST_NAME:-Thabo Dlamini}"
+TEST_CNUM="${TEST_CNUM:-1000000000}"
+
 echo ""
-echo -e "${BOLD}${GREEN}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}${GREEN}║   Platform is ready!                         ║${NC}"
-echo -e "${BOLD}${GREEN}╚══════════════════════════════════════════════╝${NC}"
+echo -e "${BOLD}${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BOLD}${GREEN}║                                                              ║${NC}"
+echo -e "${BOLD}${GREEN}║        ✅  Capitec Kafka Platform is ready!                  ║${NC}"
+echo -e "${BOLD}${GREEN}║                                                              ║${NC}"
+echo -e "${BOLD}${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "  ${BOLD}Customer Order Portal${NC}   http://localhost:8082"
-echo -e "  ${BOLD}Admin Dashboard${NC}         http://localhost:8081"
-echo -e "  ${BOLD}Producer UI (dev)${NC}       http://localhost:8080"
-echo -e "  ${BOLD}Inventory API${NC}           http://localhost:8083/api/inventory"
+echo -e "  ${BOLD}${CYAN}Portals & Services${NC}"
+echo -e "  ┌─────────────────────────────────────────────────────────────┐"
+echo -e "  │  ${BOLD}Customer Order Portal${NC}   ${GREEN}http://localhost:8082${NC}             │"
+echo -e "  │  ${BOLD}Admin Dashboard${NC}         ${GREEN}http://localhost:8081${NC}             │"
+echo -e "  │  ${BOLD}Inventory API${NC}           ${GREEN}http://localhost:8083/api/inventory${NC} │"
+echo -e "  │  ${BOLD}Producer UI (dev tool)${NC}  ${GREEN}http://localhost:8080${NC}             │"
+echo -e "  └─────────────────────────────────────────────────────────────┘"
 echo ""
-echo -e "  ${BOLD}Test login:${NC}"
-echo -e "    Cell:     0601000700"
-echo -e "    Password: Capitec@01"
+echo -e "  ${BOLD}${CYAN}Test Customer — use this to log in to the Order Portal${NC}"
+echo -e "  ┌─────────────────────────────────────────────────────────────┐"
+echo -e "  │  ${BOLD}Name:${NC}             $TEST_NAME"
+echo -e "  │  ${BOLD}Customer #:${NC}       $TEST_CNUM"
+echo -e "  │  ${BOLD}Cell:${NC}             ${YELLOW}$TEST_CELL${NC}"
+echo -e "  │  ${BOLD}Password:${NC}         ${YELLOW}Capitec@01${NC}"
+echo -e "  └─────────────────────────────────────────────────────────────┘"
 echo ""
-echo -e "  ${BOLD}Re-seed anytime:${NC}"
-echo -e "    bash kafka-producer/create-customers.sh"
-echo -e "    bash kafka-producer/create-orders.sh"
-echo -e "    bash kafka-producer/stock-inventory.sh"
+echo -e "  ${BOLD}${CYAN}Quick actions${NC}"
+echo -e "  ┌─────────────────────────────────────────────────────────────┐"
+echo -e "  │  Open portal:     open http://localhost:8082                │"
+echo -e "  │  Open dashboard:  open http://localhost:8081                │"
+echo -e "  │  Re-seed data:    bash kafka-producer/create-customers.sh   │"
+echo -e "  │                   bash kafka-producer/create-orders.sh      │"
+echo -e "  │                   bash kafka-producer/stock-inventory.sh    │"
+echo -e "  └─────────────────────────────────────────────────────────────┘"
 echo ""
-echo -e "  ${BOLD}Options:${NC}"
-echo -e "    bash runbook.sh --skip-build   # skip Maven/Docker, use existing images"
-echo -e "    bash runbook.sh --skip-seed    # skip data seeding"
+echo -e "  ${BOLD}Options for next run:${NC}"
+echo -e "    ${CYAN}bash runbook.sh --skip-build${NC}        # reuse existing Docker images"
+echo -e "    ${CYAN}bash runbook.sh --skip-seed${NC}         # skip data seeding"
+echo -e "    ${CYAN}bash runbook.sh --skip-build --skip-seed${NC}  # just port-forward"
 echo ""
+
+# Auto-open portals on macOS
+if command -v open &>/dev/null; then
+  open http://localhost:8082
+  open http://localhost:8081
+  log_ok "Portals opened in your browser"
+fi
