@@ -30,7 +30,8 @@ public class PaymentProcessorApp {
         String bootstrapServers = env.getProperty("bootstrap.servers");
         String sourceTopic      = env.getProperty("source.topic",  "payment-init");
         String groupId          = env.getProperty("group.id",      "payment-processor-group");
-        String orderTopic       = env.getProperty("order.topic",   "order-created");
+        String orderTopic        = env.getProperty("order.topic",        "order-created");
+        String orderServiceUrl   = env.getProperty("order.service.url", "http://kafka-order-service:8081");
 
         StatusProducer producer = new StatusProducer(bootstrapServers);
         ExecutorService pool    = Executors.newFixedThreadPool(10);
@@ -80,7 +81,7 @@ public class PaymentProcessorApp {
                             customerID != null ? customerID : "",
                             product    != null ? product    : "",
                             amount,
-                            producer, orderTopic
+                            producer, orderTopic, orderServiceUrl
                         ));
                     }
                     offsets.put(
