@@ -80,6 +80,7 @@ log_ok "Docker daemon running"
 log_step "Step 2/7 — Deploying Kafka cluster"
 
 kubectl apply -f k8s/kafka-statefulset.yaml &>/dev/null
+kubectl apply -f k8s/kafkaUI.yaml &>/dev/null
 log_info "Waiting for Kafka brokers to become ready (up to 3 minutes)…"
 
 if kubectl rollout status statefulset/kafka --timeout=180s &>/dev/null; then
@@ -310,6 +311,7 @@ echo -e "  ${BOLD}${CYAN}Portals${NC}"
 echo -e "  ┌─────────────────────────────────────────────────────────────┐"
 echo -e "  │  ${BOLD}Customer Order Portal${NC}   ${GREEN}http://localhost:8082${NC}             │"
 echo -e "  │  ${BOLD}Admin Dashboard${NC}         ${GREEN}http://localhost:8081${NC}             │"
+echo -e "  │  ${BOLD}Kafka UI${NC}                ${GREEN}http://localhost:30080${NC}            │"
 echo -e "  └─────────────────────────────────────────────────────────────┘"
 echo ""
 echo -e "  ${BOLD}${CYAN}Test Customer — use this to log in to the Order Portal${NC}"
