@@ -425,7 +425,8 @@ public class OrderUiServer {
   }
 
   function renderOrderStats(s,total) {
-    const entries=[['','Total',total],['','CONFIRMED',s['CONFIRMED']||0],
+    const grandTotal=Object.values(s).reduce((a,b)=>a+b,0);
+    const entries=[['','Total',grandTotal],['','CONFIRMED',s['CONFIRMED']||0],
       ['','PAYMENT-INIT',s['PAYMENT-INIT']||0],['','PAYMENT-PROCESSED',s['PAYMENT-PROCESSED']||0],
       ['','PACKED',s['PACKED']||0],['','OUT-FOR-DELIVERY',s['OUT-FOR-DELIVERY']||0],
       ['','DELIVERED',s['DELIVERED']||0],['','CANCELLED',s['CANCELLED']||0]];
