@@ -482,6 +482,29 @@ public class PortalHtmlServer {
     afterLogin();
   }
 
+  function validateSAId(id) {
+    if (!/^[0-9]{13}$/.test(id)) return 'ID number must be exactly 13 digits.';
+    const m = parseInt(id.substring(2,4)), d = parseInt(id.substring(4,6));
+    if (m < 1 || m > 12 || d < 1 || d > 31) return 'ID number contains an invalid date.';
+    let sum = 0;
+    for (let i = 0; i < 13; i++) { let n = parseInt(id[i]); if (i % 2 !== 0) { n *= 2; if (n > 9) n -= 9; } sum += n; }
+    if (sum % 10 !== 0) return 'ID number is invalid (checksum failed).';
+    return null;
+  }
+  function validateCell(cell) {
+    if (!/^0[6-8][0-9]{8}$/.test(cell)) return 'Cell number must be 10 digits starting with 06, 07, or 08 (e.g. 0821234567).';
+    return null;
+  }
+  function validatePassword(pwd) {
+    const errors = [];
+    if (pwd.length < 8)            errors.push('at least 8 characters');
+    if (!/[A-Z]/.test(pwd))        errors.push('an uppercase letter');
+    if (!/[a-z]/.test(pwd))        errors.push('a lowercase letter');
+    if (!/[0-9]/.test(pwd))        errors.push('a number');
+    if (!/[^A-Za-z0-9]/.test(pwd)) errors.push('a special character (e.g. @#$!%)');
+    return errors.length ? 'Password must contain: ' + errors.join(', ') + '.' : null;
+  }
+
   async function doRegister() {
     const firstName = document.getElementById('su-first').value.trim();
     const lastName  = document.getElementById('su-last').value.trim();
@@ -491,8 +514,16 @@ public class PortalHtmlServer {
     const pwd       = document.getElementById('su-pwd').value;
     const pwd2      = document.getElementById('su-pwd2').value;
 
-    if (!firstName || !lastName || !cell || !pwd) { setAlert('signup-alert', 'error', 'All fields required'); return; }
-    if (pwd !== pwd2) { setAlert('signup-alert', 'error', 'Passwords do not match'); return; }
+    if (!firstName || !lastName || !cell || !pwd) { setAlert('signup-alert', 'error', 'First name, last name, cell and password are required.'); return; }
+
+    const idErr   = idNumber ? validateSAId(idNumber) : null;
+    const cellErr = validateCell(cell);
+    const pwdErr  = validatePassword(pwd);
+
+    if (idErr)   { setAlert('signup-alert', 'error', idErr);   return; }
+    if (cellErr) { setAlert('signup-alert', 'error', cellErr); return; }
+    if (pwdErr)  { setAlert('signup-alert', 'error', pwdErr);  return; }
+    if (pwd !== pwd2) { setAlert('signup-alert', 'error', 'Passwords do not match.'); return; }
     clearAlert('signup-alert');
 
     const res  = await post('/api/register', { firstName, lastName, idNumber, email, cell, password: pwd });
