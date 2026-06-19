@@ -75,7 +75,7 @@ spec:
             - name: KAFKA_LOG_DIRS
               value: "/var/lib/kafka/data"
             - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
-              value: "true"
+              value: "false"
             # Replication factors updated for 3 brokers
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "3"
