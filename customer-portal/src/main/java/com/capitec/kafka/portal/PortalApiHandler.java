@@ -90,8 +90,24 @@ public class PortalApiHandler {
         String cell      = PortalApp.getJson(body, "cell");
         String password  = PortalApp.getJson(body, "password");
 
-        if (firstName == null || lastName == null || cell == null || password == null) {
-            PortalApp.respond(out, 400, "application/json", "{\"error\":\"All fields required\"}"); return;
+        // F2: Server-side blank validation
+        if (firstName == null || firstName.isBlank()) {
+            PortalApp.respond(out, 400, "application/json", "{\"error\":\"First name is required.\"}"); return;
+        }
+        if (lastName == null || lastName.isBlank()) {
+            PortalApp.respond(out, 400, "application/json", "{\"error\":\"Last name is required.\"}"); return;
+        }
+        if (cell == null || cell.isBlank()) {
+            PortalApp.respond(out, 400, "application/json", "{\"error\":\"Cell number is required.\"}"); return;
+        }
+        if (password == null || password.isBlank()) {
+            PortalApp.respond(out, 400, "application/json", "{\"error\":\"Password is required.\"}"); return;
+        }
+
+        // F1: Check for duplicate cell before consuming a sequence number
+        String existingJson = httpGet(PortalApp.orderServiceUrl + "/api/customer/by-identifier?q=" + cell);
+        if (existingJson != null && (existingJson.contains("\"customerId\"") || existingJson.contains("\"customerID\""))) {
+            PortalApp.respond(out, 400, "application/json", "{\"error\":\"A customer with this cell number already exists.\"}"); return;
         }
 
         long custNum;
