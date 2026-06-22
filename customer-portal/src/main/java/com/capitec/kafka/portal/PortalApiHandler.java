@@ -104,10 +104,18 @@ public class PortalApiHandler {
             PortalApp.respond(out, 400, "application/json", "{\"error\":\"Password is required.\"}"); return;
         }
 
-        // F1: Check for duplicate cell before consuming a sequence number
+        // Check duplicate cell
         String existingJson = httpGet(PortalApp.orderServiceUrl + "/api/customer/by-identifier?q=" + cell);
         if (existingJson != null && (existingJson.contains("\"customerId\"") || existingJson.contains("\"customerID\""))) {
             PortalApp.respond(out, 400, "application/json", "{\"error\":\"A customer with this cell number already exists.\"}"); return;
+        }
+
+        // Check duplicate email — email is also a login identifier so must be unique
+        if (email != null && !email.isBlank()) {
+            String existingEmailJson = httpGet(PortalApp.orderServiceUrl + "/api/customer/by-identifier?q=" + email);
+            if (existingEmailJson != null && (existingEmailJson.contains("\"customerId\"") || existingEmailJson.contains("\"customerID\""))) {
+                PortalApp.respond(out, 400, "application/json", "{\"error\":\"A customer with this email address already exists.\"}"); return;
+            }
         }
 
         long custNum;
